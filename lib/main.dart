@@ -94,15 +94,27 @@ class ToDoAppState extends State<_ToDoApp> {
                 onRefresh: () async {
                   _newText = '';
                   return Future.delayed(const Duration(microseconds: 1), () {
-                    _listItems.insert(0,
-                        _ToDo(title: '', status: _ToDoStatus.edit, key: 'New'));
                     _listKey.currentState?.insertItem(0);
                     final dbRef = fireBaseInstance.child("ToDoList");
                     dbRef.push().set({
                       "Title": '',
                       "Date": '',
                       "Status": 'Edit',
-                      "Key": 'New'
+                    });
+                    dbRef.get().then((value) {
+                      Map<dynamic, dynamic> values = value.value;
+                      List<dynamic> key = values.keys.toList();
+                      for (int i = 0; i < key.length; i++) {
+                        if (values[key[i]]['Status'] == 'Edit') {
+                          _listItems.insert(
+                              0,
+                              _ToDo(
+                                  title: '',
+                                  status: _ToDoStatus.edit,
+                                  key: key[i]));
+                          break;
+                        }
+                      }
                     });
                   });
                 }),
@@ -284,7 +296,7 @@ class ToDoAppState extends State<_ToDoApp> {
                               title: _newText, status: status));
                       fireBaseInstance
                           .child("ToDoList")
-                          .child(toDo.key!)
+                          .child(_editableItem.key!)
                           .update({
                         'Status':
                             status == _ToDoStatus.pending ? 'Pending' : 'Edit',
@@ -369,7 +381,7 @@ class ToDoAppState extends State<_ToDoApp> {
                                 date: dateString, status: status));
                         fireBaseInstance
                             .child("ToDoList")
-                            .child(toDo.key!)
+                            .child(_editableItem.key!)
                             .update({
                           'Status': status == _ToDoStatus.pending
                               ? 'Pending'
@@ -439,7 +451,9 @@ class _ToDo {
         key: dataSnapshot.key,
         status: dataSnapshot.value['Status'] == 'Pending'
             ? _ToDoStatus.pending
-            : _ToDoStatus.done);
+            : dataSnapshot.value['Status'] == 'Edit'
+                ? _ToDoStatus.edit
+                : _ToDoStatus.done);
   }
 
   static _ToDo map(dynamic data, String key) {
@@ -449,7 +463,9 @@ class _ToDo {
         key: key,
         status: data['Status'] == 'Pending'
             ? _ToDoStatus.pending
-            : _ToDoStatus.done);
+            : data['Status'] == 'Edit'
+                ? _ToDoStatus.edit
+                : _ToDoStatus.done);
   }
 }
 
