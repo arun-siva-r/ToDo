@@ -92,7 +92,8 @@ class ToDoAppState extends State<_ToDoApp> {
                       return _draggableWidget(context, index, animation);
                     }),
                 onRefresh: () async {
-                  return Future.delayed(const Duration(seconds: 1), () {
+                  _newText = '';
+                  return Future.delayed(const Duration(microseconds: 1), () {
                     _listItems.insert(0,
                         _ToDo(title: '', status: _ToDoStatus.edit, key: 'New'));
                     _listKey.currentState?.insertItem(0);
