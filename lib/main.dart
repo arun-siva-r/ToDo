@@ -94,7 +94,6 @@ class ToDoAppState extends State<_ToDoApp> {
                 onRefresh: () async {
                   _newText = '';
                   return Future.delayed(const Duration(microseconds: 1), () {
-                    _listKey.currentState?.insertItem(0);
                     final dbRef = fireBaseInstance.child("ToDoList");
                     dbRef.push().set({
                       "Title": '',
@@ -115,6 +114,7 @@ class ToDoAppState extends State<_ToDoApp> {
                           break;
                         }
                       }
+                      _listKey.currentState?.insertItem(0);
                     });
                   });
                 }),
