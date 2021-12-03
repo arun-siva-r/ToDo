@@ -176,6 +176,12 @@ class ToDoAppState extends State<_ToDoApp> {
       ),
       onDismissed: (DismissDirection direction) {
         _listItems.removeAt(index);
+        _listKey.currentState?.removeItem(
+            index,
+            (context, animation) => const SizedBox(
+                  width: 0,
+                  height: 0,
+                ));
         fireBaseInstance.child("ToDoList").child(toDo.key!).remove();
         setState(() {});
       },
